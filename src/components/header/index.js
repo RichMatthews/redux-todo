@@ -1,6 +1,7 @@
 import React from 'react';
-//import './styles.css'
+//import './index.scss';
 import Search from './components/search'
+
 export default class Header extends React.Component {
   constructor(props) {
     super(props);
@@ -8,13 +9,13 @@ export default class Header extends React.Component {
     };
   }
 
-
   render() {
-
     return (
       <div className="header">
-        <button />
-        <Search />
+        <span> Home </span>
+        <span> About </span>
+        <span> Login </span>
+        <Search /> 
       </div>
     );
   }
