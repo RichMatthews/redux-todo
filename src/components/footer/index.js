@@ -1,4 +1,5 @@
 import React from 'react';
+import './index.scss';
 
 export default class Footer extends React.Component {
   constructor(props) {
@@ -10,9 +11,9 @@ export default class Footer extends React.Component {
   render() {
     return (
       <div className="footer">
-        <ul id="facebook"><a href="https://www.facebook.com">Facebook</a></ul>
-        <ul id="twitter"><a href="https://www.twitter.com">Twitter</a></ul>
-        <ul id="pinterest"><a href="https://www.pinterest.com">Pinterest</a></ul>
+        <span id="facebook"><a href="https://www.facebook.com">Facebook</a></span>
+        <span id="twitter"><a href="https://www.twitter.com">Twitter</a></span>
+        <span id="pinterest"><a href="https://www.pinterest.com">Pinterest</a></span>
       </div>
     );
   }

@@ -20,7 +20,6 @@ describe('do something', () => {
 
   // it('has the text `random`', () => {
   //   const input = renderedOutput.find('#channelHeading');
-  //   console.log(renderedOutput.props(), 'xxxx');
   //   expect(input).to.equal('random');
   // });
 });

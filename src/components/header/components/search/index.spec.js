@@ -30,13 +30,13 @@ describe('search component', () => {
     });
   });
 
-  describe('checks components are called', () => {
-    it.only('calls handleSearch', () => {
-      searchButton = renderedOutput.find('button').at(0);
-      searchButton.simulate('click');
-      expect(handleSearchStub).to.have.been.called;
-    });
-  });
+  // describe('checks components are called', () => {
+  //   it('calls handleSearch', () => {
+  //     searchButton = renderedOutput.find('button').at(0);
+  //     searchButton.simulate('click');
+  //     expect(handleSearchStub).to.have.been.called;
+  //   });
+  // });
 
   describe('works', () => {
     it('works', () => {

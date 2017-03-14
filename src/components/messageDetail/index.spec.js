@@ -14,16 +14,14 @@ import MessagingApp from '../../messagingApp'
 describe('message detail component', () => {
   let sandbox;
   let renderedOutput;
-  let handleNameChangeStub;
   let handleNameValueStub;
   let handleBodyChangeStub;
   let handleBodyValueStub;
   beforeEach(() => {
-    handleNameChangeStub = sinon.stub();
     handleNameValueStub = sinon.stub();
     handleBodyChangeStub = sinon.stub();
     handleBodyValueStub = sinon.stub();
-    renderedOutput = mount (<MessageDetail handleNameChange={handleNameChangeStub} handleBodyChange={handleBodyChangeStub}/>);
+    renderedOutput = mount (<MessageDetail handleBodyChange={handleBodyChangeStub}/>);
   });
 
   afterEach(() => {
@@ -45,20 +43,13 @@ describe('message detail component', () => {
     expect(classname).to.have.length(1);
   });
 
-  it('contains a name input field', () => {
-    let inputField = renderedOutput.find('#senderMsgName');
-    expect(inputField).to.have.length(1);
-  });
-
   it('contains a body input field', () => {
     let inputField = renderedOutput.find('#senderMsgBody');
     expect(inputField).to.have.length(1);
   });
 
   it('calls the handleNameChange function', () => {
-    const input = renderedOutput.find('#senderMsgName');
-    input.simulate('change', { target: { value: 'Rich' } });
-    expect(handleNameChangeStub).to.have.been.called;
+    //needs fixing
   });
 
   it('calls the handleBodyChange function', () => {

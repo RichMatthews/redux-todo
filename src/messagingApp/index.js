@@ -1,16 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, IndexRoute, hashHistory, Link } from 'react-router';
-import './index.scss';
+import { rootRef, firebase_init, storage } from '../../firebase/firebase_config.js';
 
+import './index.scss';
 import Header from '../components/header';
 import Channel from '../components/channel'
 import MessageDetail from '../components/messageDetail'
 import Footer from '../components/footer';
+import Button from '../components/button'
 
-import { rootRef, firebase_init, storage } from '../../firebase/firebase_config.js';
 let firebase = require('firebase');
-
+let user = firebase.auth().currentUser;
+let provider = new firebase.auth.GoogleAuthProvider();
 
 export default class MessagingApp extends React.Component{
 
@@ -18,24 +19,52 @@ export default class MessagingApp extends React.Component{
     super(props);
     this.state = {
       all_messages: [],
-      nameValue: '',
-      bodyValue: ''
+      bodyValue: '',
+      activeChannel: false,
+      channelValue: 'General',
+      user: '',
+      all_channels: [
+        {name: 'General'},
+        {name: 'Random'},
+        {name: 'Tech'},
+        {name: 'Devs'},
+        {name: 'QA'},
+        {name: 'UX'},
+        {name: 'JavaScript'}
+      ]
     };
 
     this.getMessagesAndSetState = this.getMessagesAndSetState.bind(this);
+    this.login = this.login.bind(this);
   }
 
   getMessagesAndSetState = () => {
-    this.pullMessagesFromDb('/messages/' + this.props.location.query.channelName + '/').then((messages) => {
+    this.pullMessagesFromDb('/messages/' + this.state.channelValue + '/').then((messages) => {
       let all_messages = Object.keys(messages.val()).map(function(key) {
        return messages.val()[key];
      });
      this.setState({all_messages: all_messages});
     });
-  }
+  };
 
   componentDidMount = () => {
     this.getMessagesAndSetState();
+    firebase.auth().getRedirectResult().then(function(result) {
+        if (result.credential) {
+          var token = result.credential.accessToken;
+        }
+        return result;
+      }).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        var email = error.email;
+        var credential = error.credential;
+      }).then(result => {
+        if (result.user != null) {
+          this.setState({user: result.user});
+        }
+      });
+
   }
 
   pullMessagesFromDb = (query) => {
@@ -45,7 +74,7 @@ export default class MessagingApp extends React.Component{
   }
 
   handleNameChange = (event) => {
-    this.setState({nameValue: event.target.value})
+    this.setState({nameValue: 'a'})
   }
 
   handleBodyChange = (event) => {
@@ -53,64 +82,96 @@ export default class MessagingApp extends React.Component{
   }
 
   resetForm = () => {
-    this.setState({nameValue: ''});
     this.setState({bodyValue: ''});
   }
 
   postMessageToDb = (channelName) => {
-      let database = rootRef.child('messages/' + channelName);
-      let chat  = { name: this.state.nameValue, body: this.state.bodyValue };
-      database.push().set(chat).then(() => {
-        this.getMessagesAndSetState();
-      });
-      this.resetForm();
+    let database = rootRef.child('messages/' + channelName);
+    let chat  = { name: this.state.user.displayName, body: this.state.bodyValue };
+    database.push().set(chat).then(() => {
+      this.getMessagesAndSetState();
+    });
+    this.resetForm();
   };
 
   clearMessages = () =>{
     this.setState({all_messages: []},() => this.getMessagesAndSetState());
   };
 
+  channelClick = (anything) => {
+    this.setState({ channelValue: anything});
+    this.setState({ activeChannel: true });
+    this.clearMessages();
+  };
+
+  deleteMessage = (index) => {
+    // let dltdMsg = rootRef.child('messages/' + this.state.channelValue + '/-KentOtPSifEqogyBi8Y');
+    // dltdMsg.remove();
+    this.getMessagesAndSetState();
+  };
+
+  createChannel = () => {
+    // probably needs to be done with firebase
+    let channelName = prompt("Enter channel name");
+    this.setState({all_channels: this.state.all_channels.concat([channelName])})
+  }
+
+
+
+  login = () => {
+    let userDisplayName;
+    firebase.auth().signInWithRedirect(provider).then(function(result) {
+      var token = result.credential.accessToken;
+      var user = result.user;
+    }).catch(function(error) {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      var email = error.email;
+      var credential = error.credential;
+    });
+
+  };
+
+
   render(){
     return (
-       <div>
-        <Header />
-          <h1> Messaging App </h1>
-                {this.props.children}
-                <div id="container" >
-                  <div id="links">
-                    <h2> Channels </h2>
-                    <Link id="generalLink" to={{ pathname: "general", query: { channelName: "general" } }} onClick={this.clearMessages}> General </Link>
-                    <br />
-                    <Link to={{ pathname: "random", query: { channelName: "random" } }} onClick={this.clearMessages}> Random </Link>
-                    <br />
-                    <Link to={{ pathname: "tech", query: { channelName: "tech" } }} onClick={this.clearMessages}> Tech </Link>
-                    <br />
-                    <Link to={{ pathname: "devs", query: { channelName: "devs" } }} onClick={this.clearMessages}> Devs </Link>
-                    <br />
-                    <Link to={{ pathname: "qa", query: { channelName: "qa" } }} onClick={this.clearMessages}> QA </Link>
-                    <br />
-                    <Link to={{ pathname: "ux", query: { channelName: "ux" } }} onClick={this.clearMessages}> UX </Link>
-                    <br />
-                    <Link to={{ pathname: "tech", query: { channelName: "tech" } }} onClick={this.clearMessages}> JavaScript </Link>
-                  </div>
-                  <div id="messageContainer" >
-                    <div id="messages">
-                      {this.state.all_messages.map(function(msg, index){
-                          return <div key={ index }><p id="msgName">{msg.name}</p><p id="msgBody">{msg.body}<span><button>Delete</button></span></p></div>
-                      }, this)}
-                      </div>
-                    <MessageDetail
-                      handleNameChange={this.handleNameChange.bind(this)}
-                      handleBodyChange={this.handleBodyChange.bind(this)}
-                      nameValue={this.state.nameValue}
-                      bodyValue={this.state.bodyValue}
-                      onChange={this.props.onChange}
-                    />
-                    <button className="postButton" onClick={() => this.postMessageToDb(this.props.location.query.channelName)}>Post</button>
-                  </div>
-                </div>
-          <Footer />
-       </div>
+         <div className="container">
+          <nav role="links">
+            <h2> Channels </h2>
+            <button onClick={this.login}>Log in with Google</button>
+            <button onClick={this.createChannel}>Add channel</button>
+            {this.state.all_channels.map(function(chnl, index){
+                return <div key={ index }><Button channelClick={this.channelClick.bind(this)} text={chnl.name} /></div>
+            }, this)}
+          </nav>
+          <div className="headingOne">
+            {this.state.activeChannel
+              ?
+              <Channel
+               channelValue={this.state.channelValue}
+              />
+              :
+              <h1> {this.state.channelValue} </h1>
+            }
+          </div>
+          <div className="postedMessagesContainer">
+              <div id="messages">
+                {this.state.all_messages.map(function(msg, index){
+                    return <div id="msgs" key={ index }><p id="msgName">{msg.name}</p><p id="msgBody">{msg.body}<span><button onClick={() => this.deleteMessage(index)}>Delete</button></span></p></div>
+                }, this)}
+              </div>
+          </div>
+          <div className="messageDetails">
+            <MessageDetail
+              handleNameChange={this.handleNameChange.bind(this)}
+              handleBodyChange={this.handleBodyChange.bind(this)}
+              postMessageToDb={this.postMessageToDb.bind(this)}
+              bodyValue={this.state.bodyValue}
+              channelValue={this.state.channelValue}
+              onChange={this.props.onChange}
+            />
+          </div>
+ </div>
       )
   };
 };
