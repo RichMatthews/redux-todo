@@ -135,6 +135,7 @@ export default class MessagingApp extends React.Component{
 
   render(){
     return (
+      
          <div className="container">
           <nav role="links">
             <h2> Channels </h2>
