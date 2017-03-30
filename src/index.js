@@ -1,13 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Header from './components/header';
-import Channel from './components/channel'
-import MessageDetail from './components/messageDetail'
-import Footer from './components/footer';
-import MessagingApp from './messagingApp'
-
-class Main extends React.Component{
+class Boilerplate extends React.Component{
 
   constructor(props) {
     super(props);
@@ -19,12 +13,11 @@ class Main extends React.Component{
   render(){
     return (
        <div>
-       Working
-       <Main />
+       Working :)
        </div>
       )
   };
 };
 
-ReactDOM.render(<MessagingApp />,
+ReactDOM.render(<Boilerplate />,
     document.getElementById('content'));
