@@ -36,10 +36,10 @@ describe.only('Container', () => {
     });
   });
   describe('initial state', () => {
-    it('should check initial state is empty', () => {
+    it('should check initial state of input value is empty', () => {
       expect(wrapper.state().inputValue).to.equal('')
     });
-    it('should check initial state is value typed in', () => {
+    it('should check input value state is the value that is typed in', () => {
       const fakeValue = 'fakeValue';
       wrapper.setState({inputValue: fakeValue})
       expect(wrapper.state().inputValue).to.equal('fakeValue')
@@ -60,6 +60,10 @@ describe.only('Container', () => {
       wrapper.setState({errorMessageShown: true})
       expect(wrapper.find(Error)).to.have.length(1);
     });
+    it('should render null if errorMessageShown is false', () => {
+      wrapper.setState({errorMessageShown: false})
+      expect(wrapper.find('.errors').children()).to.have.length(0);
+    });
   });
 
   describe('components', () => {
@@ -75,7 +79,7 @@ describe.only('Container', () => {
     it('should show the correct number of items in the unpacked list', () => {
       expect(wrapper.find(Items).get(1).props.items.length).to.equal(3);
     });
-    it('should make sure the prop items is are correct', () => {
+    it('should make sure the prop items are as expected', () => {
       expect(wrapper.instance().props.items).to.deep.equal([
         { name: 'washing', packed: false },
         { name: 'jumper', packed: false },
@@ -83,6 +87,27 @@ describe.only('Container', () => {
         { name: 'lunchbox', packed: true },
         { name: 'socks', packed: true }
       ]);
+    });
+  });
+
+  describe('clear input', () => {
+    it('should clear the input of the box', () => {
+      wrapper.setState({inputValue: 'i am not empty'})
+      wrapper.instance().clearInput();
+      expect(wrapper.state().inputValue).to.equal('')
+    });
+  });
+
+  describe('addTheItem', () => {
+    it('tries to add a product that already exists', () => {
+      const fakeItem = 'jumper'
+      wrapper.instance().addTheItem(fakeItem);
+      expect(wrapper.state().errorMessageShown).to.equal(true)
+    });
+    it('successfully adds a product that does not exist', () => {
+      const fakeItem = 'fakeItem';
+      wrapper.instance().addTheItem(fakeItem);
+      expect(addItemStub.called).to.equal(true)
     });
   });
 
@@ -98,7 +123,7 @@ describe.only('Container', () => {
       expect(addItemStub.called).to.equal(true)
     });
     it('expects markAllAsUnpacked button to be called', () => {
-      wrapper.find('.markAllAsUnpacked').simulate('click');
+      wrapper.find('.markAllAsUnpackedBtn').simulate('click');
       expect(markAllAsUnpackedStub.called).to.equal(true)
     });
   });

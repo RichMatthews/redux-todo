@@ -10,12 +10,15 @@ import {
 import Items from '../Items';
 import Error from '../Error';
 import Filter from '../Filter';
+import Button from '../Button';
+import './index.scss';
 
 export class Container extends React.Component {
 
    state = {
      inputValue: '',
-     errorMessageShown: false
+     errorMessageShown: false,
+     filterValue: ''
    }
 
    handleInput = e => {
@@ -23,11 +26,16 @@ export class Container extends React.Component {
      this.setState({errorMessageShown: false})
    }
 
+   handleFilterInput = e => {
+     this.setState({filterValue: e.target.value})
+   }
+
    itemAlreadyAdded = item => {
      return this.props.items.find(i => i.name === item) ? true : false
    }
 
    addTheItem = item => {
+     this.clearInput();
      return this.itemAlreadyAdded(item) ? this.setState({errorMessageShown: true}) : this.props.addItem(item)
    }
 
@@ -44,47 +52,69 @@ export class Container extends React.Component {
         return true;
     };
 
+    filterList = (items) => {
+      return items.filter(item => item.name.startsWith(this.state.filterValue))
+    }
+
    render() {
-     const { items, addItem, packItem, removeItem, markAllAsUnpacked } = this.props;
+     const { items, addItem, packItem, removeItem, markAllAsUnpacked, filter } = this.props;
      const { inputValue, errorMessageShown } = this.state;
-     const packed = items.filter(item => item.packed === true)
-     const unpacked = items.filter(item => !item.packed === true)
+     const packed = this.filterList(items).filter(item => item.packed === true)
+     const unpacked = this.filterList(items).filter(item => !item.packed === true)
      return(
-       <div>
+       <div className="mainBody">
         <h1>Items</h1>
-        <input
-          className="itemInput"
-          onChange={this.handleInput}
-          onKeyPress={(event) => this.usingEnterKey(event, inputValue)}
-          value={inputValue}
-        />
-        <button
-          className="addBtn"
-          onClick={() => {this.addTheItem(inputValue); this.clearInput()}}
-          >
-          Add Item
-        </button>
-        {errorMessageShown ? <Error /> : null}
-        <h3> Unpacked {`(${unpacked.length})`} </h3>
-          <Items
-            items={unpacked}
-            packItem={packItem}
-            removeItem={removeItem}
+        <div>
+          <input
+            className="itemInput"
+            onChange={this.handleInput}
+            onKeyPress={(event) => this.usingEnterKey(event, inputValue)}
+            value={inputValue}
           />
-        <h3> Packed {`(${packed.length})`} </h3>
-          <Items
-            items={packed}
-            packItem={packItem}
-            removeItem={removeItem}
+        </div>
+        <div className="addItem">
+          <Button
+            className="addBtn"
+            onClick={() => {this.addTheItem(inputValue)}}
+            buttonName="Add Item"
           />
-        <button className="markAllAsUnpacked" onClick={markAllAsUnpacked}>Mark all as unpacked</button>
+        </div>
+        <div className="errors">
+          {errorMessageShown ? <Error /> : null}
+        </div>
+        <div className="items">
+          <h3> Unpacked {`(${unpacked.length})`} </h3>
+            <Filter
+              text="filter list"
+              onChange={this.handleFilterInput}
+            />
+            <Items
+              items={unpacked}
+              packItem={packItem}
+              removeItem={removeItem}
+            />
+          <h3> Packed {`(${packed.length})`} </h3>
+            <Items
+              items={packed}
+              packItem={packItem}
+              removeItem={removeItem}
+            />
+        </div>
+        <div className="markAllAsUnpacked">
+          <Button
+            className="markAllAsUnpackedBtn"
+            onClick={markAllAsUnpacked}
+            buttonName="Mark all as unpacked"
+          />
+        </div>
        </div>
      )
    }
 }
 
 const mapStateToProps = state => ({
-  items: state.items
+  items: state.items,
+  filter: state.items.filter(item => item.name.startsWith(state.searchText))
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -99,6 +129,9 @@ const mapDispatchToProps = dispatch => ({
   },
   markAllAsUnpacked: (item) => {
     dispatch(markAllAsUnpacked(item));
+  },
+  filterItem: (text) => {
+    dispatch(filterItem(text))
   }
 })
 
