@@ -7,7 +7,7 @@ import Items from '../Items';
 import Error from '../Error';
 import Filter from '../Filter';
 
-describe.only('Container', () => {
+describe('Container', () => {
   const items = [
     {name: 'washing', packed: false},
     {name: 'jumper', packed: false},
@@ -109,12 +109,6 @@ describe.only('Container', () => {
       wrapper.instance().addTheItem(fakeItem);
       expect(addItemStub.called).to.equal(true)
     });
-  });
-
-  xit('testing ternary', () => {
-    const alreadyExistingItem = {name: 'jumper'}
-    wrapper.instance().addTheItem(alreadyExistingItem)
-    expect(addItemStub.called).to.equal(true)
   });
 
   describe('buttons', () => {

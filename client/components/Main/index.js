@@ -76,8 +76,8 @@ export class Container extends React.Component {
           <Button
             className="addBtn"
             onClick={() => {this.addTheItem(inputValue)}}
-            buttonName="Add Item"
-          />
+          >Add Item
+          </Button>
         </div>
         <div className="errors">
           {errorMessageShown ? <Error /> : null}
@@ -104,8 +104,8 @@ export class Container extends React.Component {
           <Button
             className="markAllAsUnpackedBtn"
             onClick={markAllAsUnpacked}
-            buttonName="Mark all as unpacked"
-          />
+          >Mark all as unpacked
+          </Button>
         </div>
        </div>
      )
